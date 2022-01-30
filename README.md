@@ -1,4 +1,4 @@
-Basic demonstration project showing use of RT-Thread Nano (https://github.com/RT-Thread/rtthread-nano) with a GD32VF103CB RISC-V MCU.
+Basic demonstration project showing use of RT-Thread Nano (https://github.com/RT-Thread/rtthread-nano) with a GD32VF103CB RISC-V MCU in PlatformIO.
 
 The demonstration is based on a GD32VF103C_START board, but is easily modified for other GD32VF103Cx boards (e.g. Sipeed Longan Nano).
 
