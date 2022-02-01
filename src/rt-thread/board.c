@@ -25,6 +25,8 @@
 // #define TMR_REG(offset)         _REG32(TMR_CTRL_ADDR, offset)
 // #define TMR_FREQ                ((uint32_t)SystemCoreClock/4)  //units HZ
 
+void usart0_init(void);
+
 void riscv_clock_init(void)
 {
     SystemInit();
@@ -67,6 +69,9 @@ void rt_hw_board_init()
     /* system clock Configuration */
     riscv_clock_init();
 
+    /* start usart0 */
+    usart0_init();
+
     /* OS Tick Configuration */
     ostick_config(TIMER_FREQ / RT_TICK_PER_SECOND);
 
@@ -95,3 +100,50 @@ void eclic_mtip_handler(void)
     rt_interrupt_leave();
 }
 
+void rt_hw_console_output(const char *str)
+{
+    char ch = *str++;
+    while(ch != '\0')
+    {
+        usart_data_transmit(USART0, (uint8_t) ch);
+        while (usart_flag_get(USART0, USART_FLAG_TBE) == RESET)
+        {
+        }
+
+        if('\n' == ch)
+        {
+            ch = '\r';
+        }
+        else
+        {
+            ch = *str++;
+        }
+    }
+
+}
+
+void usart0_init(void)
+{
+    /* enable USART clock */
+    rcu_periph_clock_enable(RCU_USART0);
+    
+    /* enable GPIO clock */
+    rcu_periph_clock_enable(RCU_GPIOA);
+        
+    /* connect port to USARTx_Tx */
+    gpio_init(GPIOA, GPIO_MODE_AF_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_9);
+    /* connect port to USARTx_Rx */
+    gpio_init(GPIOA, GPIO_MODE_IN_FLOATING, GPIO_OSPEED_50MHZ, GPIO_PIN_10);
+
+    /* USART configure */
+    usart_deinit(USART0);
+    usart_baudrate_set(USART0, 115200U);
+    usart_word_length_set(USART0, USART_WL_8BIT);
+    usart_stop_bit_set(USART0, USART_STB_1BIT);
+    usart_parity_config(USART0, USART_PM_NONE);
+    usart_hardware_flow_rts_config(USART0, USART_RTS_DISABLE);
+    usart_hardware_flow_cts_config(USART0, USART_CTS_DISABLE);
+    usart_receive_config(USART0, USART_RECEIVE_ENABLE);
+    usart_transmit_config(USART0, USART_TRANSMIT_ENABLE);
+    usart_enable(USART0);
+}

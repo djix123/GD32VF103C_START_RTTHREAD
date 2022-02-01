@@ -165,10 +165,18 @@ void thread2_entry(void *parameter)
         FlagStatus button = gpio_input_bit_get(WAKEUP_KEY_GPIO_PORT, WAKEUP_KEY_PIN);
         if(SET == button)
         {
+            if(FALSE == button_pressed)
+            {
+                rt_kprintf("Pressed\n");
+            }
             button_pressed = TRUE;
         }
         else
         {
+            if(TRUE == button_pressed)
+            {
+                rt_kprintf("Released\n");
+            }
             button_pressed = FALSE;
         }
 
